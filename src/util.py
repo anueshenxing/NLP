@@ -9,8 +9,12 @@ pre_dir = "/home/zhang/Documents/data_file_2017/"
 
 
 def load_cPickle(file_name):
-    data = cPickle.load(open(pre_dir + file_name, "rb"))
-    return data
+    with cPickle.load(open(pre_dir + file_name, "rb")) as data:
+        return data
+
+
+def save_data_by_cPickle(data, file_name):
+    cPickle.dump(data, open(pre_dir + file_name, "wb"), True)
 
 
 def encode_utf8(str):

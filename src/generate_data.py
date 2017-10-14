@@ -1,6 +1,7 @@
 # encoding=utf-8
 
-import cPickle
+import util
+from util import WordAndIDTranslater
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -44,10 +45,47 @@ def get_all_news_keywords():
                 all_news_keywords.append(news_keywords)
             else:
                 all_news_keywords.append([])
-
-    cPickle.dump(all_news_keywords, open(pre_dir + "all_news_keywords.p", "wb"), True)
+    util.save_data_by_cPickle(all_news_keywords, "all_news_keywords.p")
+    # cPickle.dump(all_news_keywords, open(pre_dir + "all_news_keywords.p", "wb"), True)
     return True
 
 
+def statistics_word_appears(data):
+    word_and_id_getter = WordAndIDTranslater('wordtoix_and_ixtoword_true.p')
+
+    statitics_word = {}
+    for news_keywords in data:
+        print news_keywords
+        for word in news_keywords:
+            wordID = word_and_id_getter.get_wordID(word)
+            if wordID not in statitics_word.keys():
+                statitics_word[wordID] = 1
+            else:
+                statitics_word[wordID] += 1
+    print statitics_word
+    util.save_data_by_cPickle(statitics_word, 'statitics_word.p')
+
+
+def generate_stastics_word_appears_data():
+    all_news_keywords = util.load_cPickle('all_news_keywords.p')
+    statistics_word_appears(all_news_keywords)
+
+
+def generate_data_for_lda():
+    word_and_id_getter = WordAndIDTranslater('wordtoix_and_ixtoword_true.p')
+    statitics_word = util.load_cPickle('statitics_word.p')
+    all_news_keywords = util.load_cPickle('all_news_keywords.p')
+    lda_input = []
+
+    for news_keywords in all_news_keywords:
+        news = []
+        for word in news_keywords:
+            wordID = word_and_id_getter.get_wordID(word)
+            news.append((wordID, statitics_word[wordID]))
+        lda_input.append(news)
+    util.save_data_by_cPickle(lda_input, 'data_for_lda.p')
+
+
+
 if __name__ == "__main__":
-    get_all_news_keywords()
+    generate_data_for_lda()
