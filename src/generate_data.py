@@ -52,10 +52,11 @@ def get_all_news_keywords():
 
 def statistics_word_appears(data):
     word_and_id_getter = WordAndIDTranslater('wordtoix_and_ixtoword_true.p')
-
+    count = 0
     statitics_word = {}
     for news_keywords in data:
-        print news_keywords
+        print count
+        count += 1
         for word in news_keywords:
             wordID = word_and_id_getter.get_wordID(word)
             if wordID not in statitics_word.keys():
@@ -84,7 +85,6 @@ def generate_data_for_lda():
             news.append((wordID, statitics_word[wordID]))
         lda_input.append(news)
     util.save_data_by_cPickle(lda_input, 'data_for_lda.p')
-
 
 
 if __name__ == "__main__":
