@@ -5,7 +5,7 @@ import numpy as np
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-pre_dir = "E:\\data_file_2017\\"
+pre_dir = "/home/zhang/Documents/data_file_2017/"
 
 
 def load_cPickle(file_name):

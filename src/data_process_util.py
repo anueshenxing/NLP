@@ -5,7 +5,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-pre_dir = "E:\\data_file_2017\\"
+pre_dir = "/home/zhang/Documents/data_file_2017/"
 
 
 def load_file(file_name):
@@ -47,6 +47,7 @@ def get_all_news_keywords():
 
     cPickle.dump(all_news_keywords, open(pre_dir + "all_news_keywords.p", "wb"), True)
     return True
+
 
 if __name__ == "__main__":
     get_all_news_keywords()
