@@ -9,8 +9,8 @@ pre_dir = "/home/zhang/Documents/data_file_2017/"
 
 
 def load_cPickle(file_name):
-    with cPickle.load(open(pre_dir + file_name, "rb")) as data:
-        return data
+    data = cPickle.load(open(pre_dir + file_name, "rb"))
+    return data
 
 
 def save_data_by_cPickle(data, file_name):

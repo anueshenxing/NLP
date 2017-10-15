@@ -55,7 +55,8 @@ def statistics_word_appears(data):
     count = 0
     statitics_word = {}
     for news_keywords in data:
-        print count
+        if count % 100 == 0:
+            print count
         count += 1
         for word in news_keywords:
             wordID = word_and_id_getter.get_wordID(word)
@@ -77,8 +78,11 @@ def generate_data_for_lda():
     statitics_word = util.load_cPickle('statitics_word.p')
     all_news_keywords = util.load_cPickle('all_news_keywords.p')
     lda_input = []
-
+    count = 0
     for news_keywords in all_news_keywords:
+        if count % 100 == 0:
+            print count
+        count += 1
         news = []
         for word in news_keywords:
             wordID = word_and_id_getter.get_wordID(word)
@@ -88,4 +92,4 @@ def generate_data_for_lda():
 
 
 if __name__ == "__main__":
-    generate_data_for_lda()
+    generate_stastics_word_appears_data()
