@@ -96,7 +96,6 @@ def generate_news_data_by_jieba(origin_news_file_dir):
     log.log_info('save all_news_ctg_title_data success')
 
 
-
 def get_all_news_keywords():
     ctg_title_keywords = "all_news_title_and_ctg_with_keywords.txt"
     ctg_title = "news_title_data_and_category.txt"
@@ -165,6 +164,8 @@ def generate_data_for_lda():
         news = []
         for word in news_keywords:
             wordID = word_and_id_getter.get_wordID(word)
+            if not isinstance(wordID, int):
+                continue
             news.append((wordID, statitics_word[wordID]))
         lda_input.append(news)
     util.save_data_by_cPickle(lda_input, 'data_for_lda.p')
