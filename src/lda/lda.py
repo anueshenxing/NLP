@@ -7,16 +7,16 @@ from gensim import corpora, models
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
-predir = '/home/zhang/Documents/data_file_2017/'
+pre_dir = '/home/zhang/Documents/data_file_2017/'
 
 
 def load_cPickle(file_name):
-    data = cPickle.load(open(predir + file_name, "rb"))
+    data = cPickle.load(open(pre_dir + file_name, "rb"))
     return data
 
 
 def save_data_by_cPickle(data, file_name):
-    cPickle.dump(data, open(predir + file_name, "wb"), True)
+    cPickle.dump(data, open(pre_dir + file_name, "wb"), True)
 
 
 def encode_utf8(str):
@@ -56,24 +56,22 @@ class WordAndIDTranslater(object):
         return self.get_word_by_wordID[wordID]
 
 
+def load_ldamodel(modelDir):
+    model = models.LdaModel.load(modelDir)
+    return model
+
+
 if __name__ == "__main__":
-    generate_data_for_lda()
-    time.sleep(5)
-    corpus = cPickle.load(open(predir + 'data_for_lda.p', "rb"))
-    lda = models.ldamodel.LdaModel(corpus, num_topics=100, alpha='symmetric', eval_every=5, iterations=10,
-                                   gamma_threshold=0.001, minimum_probability=0.01, random_state=1)
-
-    lda.save('/home/zhang/Documents/data_file_2017/lda.model')
-
-    # doc_topic = []
-    # for index in range(len(corpus)):
-    #     max_p = 0.
-    #     topic = ''
-    #     for ti in lda[corpus[index]]:
-    #         if ti[1] > max_p:
-    #             topic = ti[0]
-    #             max_p = ti[1]
-    #     doc_topic.append(topic)
+    # generate_data_for_lda()
+    # time.sleep(5)
+    # corpus = cPickle.load(open(pre_dir + 'data_for_lda.p', "rb"))
+    # lda = models.ldamodel.LdaModel(corpus, num_topics=100, alpha='symmetric', eval_every=5, iterations=10,
+    #                                gamma_threshold=0.001, minimum_probability=0.01, random_state=1)
     #
-    # for i in range(30):
-    #     print str(i + 1) + ":" + str(doc_topic[i]) + "->" + str(doc_topic[i + 30])
+    # lda.save('/home/zhang/Documents/data_file_2017/lda.model')
+
+    lda = load_ldamodel(pre_dir + 'lda.model')
+    corpus = cPickle.load(open(pre_dir + 'data_for_lda.p', "rb"))
+
+    print lda[corpus[0]]
+
