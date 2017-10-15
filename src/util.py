@@ -1,24 +1,41 @@
 # encoding=utf-8
 
 import cPickle
+import global_params
+import jieba.posseg as pseg
 import numpy as np
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-pre_dir = "/home/zhang/Documents/data_file_2017/"
 
 
 def load_cPickle(file_name):
-    data = cPickle.load(open(pre_dir + file_name, "rb"))
+    data = cPickle.load(open(global_params.GENERATE_DATA_DIR + file_name, "rb"))
     return data
 
 
 def save_data_by_cPickle(data, file_name):
-    cPickle.dump(data, open(pre_dir + file_name, "wb"), True)
+    cPickle.dump(data, open(global_params.GENERATE_DATA_DIR + file_name, "wb"), True)
 
 
 def encode_utf8(str):
     return str.encode('utf-8')
+
+
+def split_sentence_to_word(sentence):
+    """
+    :param sentence:
+    :return: [(word,flag),...]
+    """
+    result = []
+    if sentence is None or sentence == '':
+        return result
+    sent = ' '.join(sentence.split('\n'))
+    word_flag_dict = pseg.cut(sent)
+    for item in word_flag_dict:
+        word = (item.word, item.flag)
+        result.append(word)
+    return result
 
 
 def get_word2vec_dict(file_name):
@@ -46,6 +63,17 @@ class WordAndIDTranslater(object):
 
     def get_word(self, wordID):
         return self.get_word_by_wordID[wordID]
+
+
+class StopWords(object):
+    def __init__(self, filename):
+        self.stopwords = load_cPickle(filename)
+
+    def is_stopword(self, word):
+        is_a_stopword = False
+        if word in self.stopwords:
+            is_a_stopword = True
+        return is_a_stopword
 
 
 if __name__ == "__main__":
