@@ -11,4 +11,5 @@ class LogUtil(object):
         self.log = open(global_params.LOG_FILE_DIR + log_name, 'a')
 
     def log_info(self, info):
+        print 'INFO: => ' + info + '\n'
         self.log.write('INFO: => ' + info + '\n')

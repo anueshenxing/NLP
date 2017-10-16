@@ -92,7 +92,7 @@ def generate_news_data_by_jieba(origin_news_file_dir):
     log.log_info('save word_flag_dict success')
 
     log.log_info('start to save all_news_ctg_title_data')
-    util.save_data_by_cPickle(word_flag_dict, ALL_NEWS_CTG_TITLE_CONTENT_FILE_NAME)
+    util.save_data_by_cPickle(all_news_ctg_title_data, ALL_NEWS_CTG_TITLE_CONTENT_FILE_NAME)
     log.log_info('save all_news_ctg_title_data success')
 
 
@@ -169,9 +169,6 @@ def generate_data_for_lda():
             news.append((wordID, statitics_word[wordID]))
         lda_input.append(news)
     util.save_data_by_cPickle(lda_input, 'data_for_lda.p')
-
-
-
 
 
 if __name__ == "__main__":
