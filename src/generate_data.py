@@ -1,13 +1,19 @@
 # encoding=utf-8
-import os
 
+import os
 import global_params
 import json
 import util
+import sys
+import time
+
+from gensim.models import Word2Vec
 from util import WordAndIDTranslater
+from util import WordVec
+from collections import defaultdict
 from util import StopWords
 from log_util import LogUtil
-import sys
+
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -96,6 +102,38 @@ def generate_news_data_by_jieba(origin_news_file_dir):
     log.log_info('save all_news_ctg_title_data success')
 
 
+def generate_word_dict(news_data_filename, word_dict_filename):
+    print 'start to load origin data time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    all_news_ctg_title_data = util.load_cPickle(news_data_filename)
+    print 'end to load origin data time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    print 'start to generate word dict time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    vocab = defaultdict(float)
+    count = 0
+    for news in all_news_ctg_title_data:
+        if count % 100 == 0:
+            print count
+        count += 1
+        news_title = news[1]
+        news_content = news[2]
+        sentence = news_title + news_content
+        for word in sentence:
+            word = util.encode_utf8(word)
+            vocab[word] += 1
+
+    get_wordID_by_word_dict = defaultdict(float)
+    get_word_by_wordID_dict = defaultdict(float)
+    word_id = 0
+    for w in vocab.keys():
+        get_wordID_by_word_dict[w] = word_id
+        get_word_by_wordID_dict[word_id] = w
+        word_id += 1
+    print 'end to generate word dict time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    util.save_data_by_cPickle([get_wordID_by_word_dict, get_word_by_wordID_dict], word_dict_filename)
+
+    print 'finish to save word dict time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+
 def get_all_news_keywords():
     ctg_title_keywords = "all_news_title_and_ctg_with_keywords.txt"
     ctg_title = "news_title_data_and_category.txt"
@@ -171,5 +209,53 @@ def generate_data_for_lda():
     util.save_data_by_cPickle(lda_input, 'data_for_lda.p')
 
 
+def generate_word2vec(origin_filename, destination_filename):
+    # todo unable to recognize chinese word,need to fix this problem
+    # todo how to confirm parameters when train word2vec
+
+    print 'start to load origin data time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    all_news_ctg_title_data = util.load_cPickle(origin_filename)
+    print 'end to load origin data time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    print 'start to generate sentences time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    count = 0
+    sentences = []
+    for news in all_news_ctg_title_data:
+        if count % 100 == 0:
+            print count
+        count += 1
+        news_title = news[1]
+        news_content = news[2]
+        sentence = news_title + news_content
+        sentences.append(sentence)
+    print 'end to generate sentences time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    print 'train word2ve start time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    model = Word2Vec(sentences, sg=1, size=100, window=5, min_count=5, workers=4)
+    model.save(global_params.GENERATE_DATA_DIR + destination_filename)
+    print 'train word2ve is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    return True
+
+
+def generate_word2vec_dict(word2vec_model_filename, word2vec_dict_filename, ):
+    word_and_id_getter = WordAndIDTranslater('wordtoix_and_ixtoword_true.p')
+    model = Word2Vec.load(global_params.GENERATE_DATA_DIR + word2vec_model_filename)
+    log = LogUtil('word_has_no_vector.txt')
+    word2vec_dict = defaultdict(float)
+
+    for word in word_and_id_getter.get_wordID_by_word.keys():
+        word = util.encode_utf8(word)
+        wordID = word_and_id_getter.get_wordID(word)
+        try:
+            vector = model.wv[word]
+            word2vec_dict[wordID] = vector
+            print 'word: %s, vector: %s' % (word, vector)
+        except Exception as ex:
+            log.log_info(word + '\n')
+
+    util.save_data_by_cPickle(word2vec_dict, word2vec_dict_filename)
+
+
 if __name__ == "__main__":
-    generate_news_data_by_jieba(global_params.ORIGIN_NEWS_DATA_DIR)
+    generate_word2vec_dict('word2vec', 'word2vec_dict.p')
