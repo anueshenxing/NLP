@@ -220,6 +220,8 @@ def generate_corpus(all_news_ctg_title_data, destination_path):
             news_title = news[1]
             news_content = news[2]
             sentence = news_title + news_content
+            if sentence == '' or sentence is None:
+                continue
             words_of_sentence = ' '.join(sentence) + '\n'
             f.write(util.encode_utf8(words_of_sentence))
     return True
