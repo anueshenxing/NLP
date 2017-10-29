@@ -78,11 +78,11 @@ class StopWords(object):
 
 if __name__ == "__main__":
     word_and_id_getter = WordAndIDTranslater('wordtoix_and_ixtoword_true.p')
-    print word_and_id_getter.get_wordID('中国')
-    print word_and_id_getter.get_word(12345)
-
-    wordVec = WordVec('word_vec_dict_true.p')
-    print wordVec.get_word_vec(word_and_id_getter.get_wordID('中国'))
+    # print word_and_id_getter.get_wordID('中国')
+    # print word_and_id_getter.get_word(12345)
+    print len(word_and_id_getter.get_wordID_by_word.keys())
+    # wordVec = WordVec('word_vec_dict_true.p')
+    # print wordVec.get_word_vec(word_and_id_getter.get_wordID('中国'))
 
 
 

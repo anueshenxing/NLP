@@ -7,7 +7,7 @@ import util
 import sys
 import time
 
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, word2vec
 from util import WordAndIDTranslater
 from util import WordVec
 from collections import defaultdict
@@ -209,27 +209,26 @@ def generate_data_for_lda():
     util.save_data_by_cPickle(lda_input, 'data_for_lda.p')
 
 
-def generate_word2vec(origin_filename, destination_filename):
+def generate_corpus(all_news_ctg_title_data, destination_path):
+    all_news_ctg_title_data = util.load_cPickle(all_news_ctg_title_data)
+    with open(global_params.GENERATE_DATA_DIR + destination_path, 'a') as f:
+        count = 0
+        for news in all_news_ctg_title_data:
+            if count % 100 == 0:
+                print count
+            count += 1
+            news_title = news[1]
+            news_content = news[2]
+            sentence = news_title + news_content
+            words_of_sentence = ' '.join(sentence) + '\n'
+            f.write(util.encode_utf8(words_of_sentence))
+    return True
+
+
+def generate_word2vec(corpus, destination_filename):
     # todo unable to recognize chinese word,need to fix this problem
     # todo how to confirm parameters when train word2vec
-
-    print 'start to load origin data time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    all_news_ctg_title_data = util.load_cPickle(origin_filename)
-    print 'end to load origin data time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
-    print 'start to generate sentences time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    count = 0
-    sentences = []
-    for news in all_news_ctg_title_data:
-        if count % 100 == 0:
-            print count
-        count += 1
-        news_title = news[1]
-        news_content = news[2]
-        sentence = news_title + news_content
-        sentences.append(sentence)
-    print 'end to generate sentences time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
+    sentences = word2vec.Text8Corpus(global_params.GENERATE_DATA_DIR + corpus)
     print 'train word2ve start time is : %s' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     model = Word2Vec(sentences, sg=1, size=100, window=5, min_count=5, workers=4)
     model.save(global_params.GENERATE_DATA_DIR + destination_filename)
@@ -247,6 +246,7 @@ def generate_word2vec_dict(word2vec_model_filename, word2vec_dict_filename, ):
     for word in word_and_id_getter.get_wordID_by_word.keys():
         word = util.encode_utf8(word)
         wordID = word_and_id_getter.get_wordID(word)
+        print 'now processing word is : %s' % word
         try:
             vector = model.wv[word]
             word2vec_dict[wordID] = vector
@@ -258,4 +258,7 @@ def generate_word2vec_dict(word2vec_model_filename, word2vec_dict_filename, ):
 
 
 if __name__ == "__main__":
-    generate_word2vec_dict('word2vec', 'word2vec_dict.p')
+    generate_corpus('all_news_ctg_title_data.p', 'corpus.txt')
+    # generate_word2vec('corpus.txt', 'word2vec')
+    # generate_word2vec_dict('word2vec', 'word2vec_dict.p')
+
